@@ -14,31 +14,33 @@ const catalogProducts = [
   {
     name_uz: "Xudy",
     name_ru: "Худи",
-    price: "Tabiiy paxta: 80%. Yumshoq va qulay material. Narxi: 30 000 UZS",
-    price_ru:
-      "Натуральный хлопок: 80%. Мягкий и удобный материал. Цена: 30 000 UZS",
+    priceSum: 300000 , // Yaxshiroq ko'rinishda
+    price: "Tabiiy paxta: 80%. Yumshoq va qulay material.",
+    price_ru: "Натуральный хлопок: 80%. Мягкий и удобный материал.",
     videoPath: path.join(__dirname, "assets/videos/video1.mp4"),
     imagePath: path.join(__dirname, "assets/images/Jigar-Tshirt.jpg"),
   },
   {
     name_uz: "Futbolka",
     name_ru: "Футболка",
-    price: "Tabiiy paxta: 100%. Nafas oluvchi mato. Narxi: 60 000 UZS",
-    price_ru: "Натуральный хлопок: 100%. Дышащая ткань. Цена: 60 000 UZS",
+    priceSum: "60,000 so'm", // Yaxshiroq ko'rinishda
+    price: "Tabiiy paxta: 100%. Nafas oluvchi mato.",
+    price_ru: "Натуральный хлопок: 100%.",
     videoPath: path.join(__dirname, "assets/videos/video2.mp4"),
     imagePath: path.join(__dirname, "assets/images/Jigar-Tshirt.jpg"),
   },
   {
     name_uz: "Svitshot",
     name_ru: "Свитшот",
-    price:
-      "Tabiiy paxta: 85%, Polyester: 15%. Issiqlikni ushlab turuvchi mato. Narxi: 80 000 UZS",
-    price_ru:
-      "Натуральный хлопок: 85%, Полиэстер: 15%. Ткань сохраняет тепло. Цена: 80 000 UZS",
+    priceSum: "80,000 so'm", // Yaxshiroq ko'rinishda
+    price: "Tabiiy paxta: 85%, Polyester: 15%. Issiqlikni ushlab turuvchi mato.",
+    price_ru: "Натуральный хлопок: 85%, Полиэстер: 15%. Ткань сохраняет тепло.",
     videoPath: path.join(__dirname, "assets/videos/video4.mp4"),
     imagePath: path.join(__dirname, "assets/images/Jigar-Tshirt.jpg"),
   },
 ];
+
+
 
 // Til tanlash
 bot.onText(/\/start/, (msg) => {
@@ -213,9 +215,10 @@ bot.on("message", (msg) => {
       bot.sendMessage(
         chatId,
         user.language === "🇺🇿 O'zbek tili"
-          ? "Buyurtma qabul qilindi!"
-          : "Заказ принят!"
+          ? "Buyurtma qabul qilindi!\nBotni yana ishga tushirish uchun /start buyrug'ini bosing."
+          : "Заказ принят!\nЧтобы перезапустить бота, нажмите /start."
       );
+      
       delete userState[chatId];
       showMainMenu(chatId, user.language);
     } else if (
@@ -341,6 +344,8 @@ function showInspirationalMessages(chatId, language) {
   }
 
   // Qo'shimcha tugmalar (rangni tanlash va orqaga)
+
+
   buttons.push([
     {
       text:
@@ -430,20 +435,19 @@ function showSizeOptions(chatId, language) {
   );
 }
 
+
+
+
 // Mahsulot tafsilotlarini ko'rsatish
 function showProductDetails(chatId, language, product) {
+  const priceSum = 300000;
   const caption =
     language === "🇺🇿 O'zbek tili"
-      ? `Mahsulot: ${product.name_uz}\nNarxi: ${product.price}`
-      : `Продукт: ${product.name_ru}\nЦена: ${product.price_ru}`;
+      ? `Mahsulot: ${product.name_uz}\nNarx: ${product.price}\nYagona narx: ${priceSum}`
+      : `Продукт: ${product.name_ru}\nЦена: ${product.price_ru}\nЦена: ${priceSum}`;
 
-  // Mahsulot nomi va narxini yuborish
   bot.sendMessage(chatId, caption);
-
-  // Rasm yuborish
   bot.sendPhoto(chatId, fs.readFileSync(product.imagePath));
-
-  // Video yuborish
   bot.sendVideo(chatId, fs.readFileSync(product.videoPath), {
     reply_markup: {
       keyboard: [
@@ -465,10 +469,11 @@ function showProductDetails(chatId, language, product) {
 
 // Buyurtmani tasdiqlash
 function confirmOrder(chatId, language) {
+  const priceSum = 300000;
   const orderDetails =
     language === "🇺🇿 O'zbek tili"
-      ? `Buyurtma ma'lumotlari:\nMahsulot: ${userState[chatId].selectedProduct.name_uz}\nRang: ${userState[chatId].selectedColor}\nO'lcham: ${userState[chatId].selectedSize}\nTanlangan so'z: ${userState[chatId].selectedMessage}`
-      : `Детали заказа:\nПродукт: ${userState[chatId].selectedProduct.name_ru}\nЦвет: ${userState[chatId].selectedColor}\nРазмер: ${userState[chatId].selectedSize}\nВыбранное сообщение: ${userState[chatId].selectedMessage}`;
+      ? `📌 Buyurtma ma'lumotlari:\n📦 Mahsulot: ${userState[chatId].selectedProduct.name_uz}\n🎨 Rang: ${userState[chatId].selectedColor}\n📏 O'lcham: ${userState[chatId].selectedSize}\n💬 Tanlangan so'z: ${userState[chatId].selectedMessage}\n💰 Malumot: ${priceSum.toLocaleString()} so'm`
+      : `📌 Детали заказа:\n📦 Продукт: ${userState[chatId].selectedProduct.name_ru}\n🎨 Цвет: ${userState[chatId].selectedColor}\n📏 Размер: ${userState[chatId].selectedSize}\n💬 Выбранное сообщение: ${userState[chatId].selectedMessage}\n💰 Malumot: ${priceSum.toLocaleString()} сум`;
 
   bot.sendMessage(chatId, orderDetails, {
     reply_markup: {
@@ -489,6 +494,23 @@ function confirmOrder(chatId, language) {
   });
 }
 
+// Buyurtmani admin ga yuborish
+function sendOrderToAdmin(chatId, language) {
+  const priceSum = 300000;
+  const orderDetails =
+    language === "🇺🇿 O'zbek tili"
+      ? `🆕 Yangi buyurtma:\n👤 Foydalanuvchi: @${userState[chatId].username}\n🆔 Chat ID: ${chatId}\n📦 Mahsulot: ${userState[chatId].selectedProduct.name_uz}\n🎨 Rang: ${userState[chatId].selectedColor}\n📏 O'lcham: ${userState[chatId].selectedSize}\n💬 Tanlangan so'z: ${userState[chatId].selectedMessage}\n💰 Narx: ${priceSum.toLocaleString()} so'm\n💳 To'lov usuli: ${userState[chatId].selectedPaymentMethod}\n📞 Telefon raqam: ${userState[chatId].phoneNumber}`
+      : `🆕 Новый заказ:\n👤 Пользователь: @${userState[chatId].username}\n🆔 Chat ID: ${chatId}\n📦 Продукт: ${userState[chatId].selectedProduct.name_ru}\n🎨 Цвет: ${userState[chatId].selectedColor}\n📏 Размер: ${userState[chatId].selectedSize}\n💬 Выбранное сообщение: ${userState[chatId].selectedMessage}\n💰 Цена: ${priceSum.toLocaleString()} сум\n💳 Способ оплаты: ${userState[chatId].selectedPaymentMethod}\n📞 Телефон: ${userState[chatId].phoneNumber}`;
+
+  const adminBotToken = "7892010861:AAGdrQwe3KiF01v9ibCQklz_wkAGFWQC1Ys";
+  const adminChatId = "-4707143908";
+  const adminBot = new TelegramBot(adminBotToken, { polling: false });
+
+  adminBot.sendMessage(adminChatId, orderDetails);
+}
+
+
+
 // To'lov usullarini ko'rsatish
 function showPaymentMethods(chatId, language) {
   bot.sendMessage(
@@ -502,7 +524,7 @@ function showPaymentMethods(chatId, language) {
           [
             { text: "Click" },
             { text: "Payme" },
-            { text: language === "🇺🇿 O'zbek tili" ? "Naqd" : "Naqd" },
+            
           ],
           [{ text: language === "🇺🇿 O'zbek tili" ? "🔙 Orqaga" : "🔙 Назад" }],
         ],
@@ -512,30 +534,59 @@ function showPaymentMethods(chatId, language) {
     }
   );
 }
-
-// Buyurtmani admin ga yuborish
-function sendOrderToAdmin(chatId, language) {
-  const orderDetails =
-    language === "🇺🇿 O'zbek tili"
-      ? `Yangi buyurtma:\nFoydalanuvchi: @${userState[chatId].username}\nChat ID: ${chatId}\nMahsulot: ${userState[chatId].selectedProduct.name_uz}\nRang: ${userState[chatId].selectedColor}\nO'lcham: ${userState[chatId].selectedSize}\nTanlangan so'z: ${userState[chatId].selectedMessage}\nTo'lov usuli: ${userState[chatId].selectedPaymentMethod}\nTelefon raqam: ${userState[chatId].phoneNumber}`
-      : `Новый заказ:\nПользователь: @${userState[chatId].username}\nChat ID: ${chatId}\nПродукт: ${userState[chatId].selectedProduct.name_ru}\nЦвет: ${userState[chatId].selectedColor}\nРазмер: ${userState[chatId].selectedSize}\nВыбранное сообщение: ${userState[chatId].selectedMessage}\nСпособ оплаты: ${userState[chatId].selectedPaymentMethod}\nТелефон: ${userState[chatId].phoneNumber}`;
-
-  const adminBotToken = "7892010861:AAGdrQwe3KiF01v9ibCQklz_wkAGFWQC1Ys"; // Admin bot token
-  const adminChatId = "-4707143908"; // Guruh chat ID
-  const adminBot = new TelegramBot(adminBotToken, { polling: false });
-
-  adminBot.sendMessage(adminChatId, orderDetails);
-}
-
+ 
 // Aloqa ma'lumotlari
 function showContact(chatId, language) {
   const contactInfo =
-    language === "🇺🇿 O'zbek tili"
+    language === "🇺 Uzbek tili"
       ? "Biz bilan bog'lanish uchun:\nTelefon: +998974634455\nEmail: info@example.com"
       : "Для связи с нами:\nТелефон: +998974634455\nEmail: info@example.com";
 
-  bot.sendMessage(chatId, contactInfo);
+  bot.sendMessage(chatId, contactInfo, {
+    reply_markup: {
+      keyboard: [
+        [{ text: language === "🇺 Uzbek tili" ? "🔙 Orqaga" : "🔙 Назад" }],  // Orqaga tugmasi
+      ],
+      resize_keyboard: true,
+      one_time_keyboard: true,
+    },
+  });
+
+  // Foydalanuvchini asosiy menyuga qaytarish, biroz kutib
+  userState[chatId].step = "mainMenu";
+
+  // Foydalanuvchi xabarni olganidan keyin asosiy menyuga qaytishi
+  setTimeout(() => {
+    showMainMenu(chatId, language);
+  }, 3000); // 3 sekund kutish
 }
+
+// Ijtimoiy tarmoqlar
+function showSocialMedia(chatId, language) {
+  const socialMediaLinks =
+    language === "🇺 Uzbek tili"
+      ? "Bizning ijtimoiy tarmoqlar:\nInstagram: https://instagram.com/example\nTelegram: https://t.me/example"
+      : "Наши социальные сети:\nInstagram: https://instagram.com/example\nTelegram: https://t.me/example";
+
+  bot.sendMessage(chatId, socialMediaLinks, {
+    reply_markup: {
+      keyboard: [
+        [{ text: language === "🇺 Uzbek tili" ? "🔙 Orqaga" : "🔙 Назад" }],  // Orqaga tugmasi
+      ],
+      resize_keyboard: true,
+      one_time_keyboard: true,
+    },
+  });
+
+  // Foydalanuvchini asosiy menyuga qaytarish, biroz kutib
+  userState[chatId].step = "mainMenu";
+
+  // Foydalanuvchi xabarni olganidan keyin asosiy menyuga qaytishi
+  setTimeout(() => {
+    showMainMenu(chatId, language);
+  }, 3000); // 3 sekund kutish
+}
+
 
 // Ijtimoiy tarmoqlar
 // Aloqa ma'lumotlari
